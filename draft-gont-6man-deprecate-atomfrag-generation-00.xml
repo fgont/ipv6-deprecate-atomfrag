@@ -1,0 +1,216 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE rfc SYSTEM "rfc2629.dtd">
+
+<?xml-stylesheet type='text/xsl' href='rfc2629.xslt' ?>
+
+<?rfc toc="yes" ?>
+<?rfc symrefs="yes" ?>
+<?rfc strict="no" ?>
+
+<rfc 
+	ipr="trust200902"
+	category="std"
+	updates="2460"
+	docName="draft-gont-6man-deprecate-atomfrag-generation-00">
+  <front>
+    <title abbrev="Deprecate Generation of IPv6 Atomic Frags">Deprecating the Generation of IPv6 Atomic Fragments</title>
+
+    <author fullname="Fernando Gont" initials="F." surname="Gont">
+      <organization abbrev="SI6 Networks / UTN-FRH">SI6 Networks / UTN-FRH</organization>
+
+      <address>
+        <postal>
+          <street>Evaristo Carriego 2644</street>
+          <code>1706</code>
+          <city>Haedo</city>
+          <region>Provincia de Buenos Aires</region>
+          <country>Argentina</country>
+        </postal>
+
+        <phone>+54 11 4650 8472</phone>
+        <email>fgont@si6networks.com</email>
+        <uri>http://www.si6networks.com</uri>
+      </address>
+    </author>
+
+<author fullname="Will(Shucheng) Liu" initials="W." surname="Liu">
+      <organization>Huawei Technologies</organization>
+      <address>
+        <postal>
+          <street>Bantian, Longgang District</street>
+          <city>Shenzhen</city>
+          <code>518129</code>
+          <country>P.R. China</country>
+        </postal>
+        <email>liushucheng@huawei.com</email>
+      </address>
+</author>
+
+    <date year="2014" />
+
+    <area>Internet</area>
+    <workgroup>IPv6 maintenance Working Group (6man)</workgroup>
+
+
+
+    <abstract>
+    <t>
+The core IPv6 specification requires that when a host receives an ICMPv6 "Packet Too Big" message reporting a "Next-Hop MTU" smaller than 1280, the host includes a Fragment Header in all subsequent packets sent to that destination, without reducing the assumed Path-MTU. The simplicity with which ICMPv6 "Packet Too Big" messages can be forged, coupled with the widespread filtering of IPv6 fragments, results in an attack vector that can be leveraged for Denial of Service purposes. This document briefly discusses the aforementioned attack vector, and formally deprecates the generation of IPv6 atomic fragments, such that the aforementioned attack vector is eliminated.
+</t>
+    </abstract>
+  </front>
+
+  <middle>
+  
+<section title="Introduction" anchor="intro">
+<t>
+
+<xref target="RFC2460"/> specifies the IPv6 fragmentation mechanism, which allows IPv6 packets to be fragmented into smaller pieces such that they fit in the Path-MTU to the intended destination(s).</t>
+
+<t>Section 5 of <xref target="RFC2460"/> states that, when a host receives an ICMPv6 "Packet Too Big" message <xref target="RFC4443"/> advertising a "Next-Hop MTU" smaller than 1280 (the minimum IPv6 MTU), the host is not required to reduce the assumed Path-MTU, but must simply include a Fragment Header in all subsequent packets sent to that destination. The resulting packets will thus *not* be actually fragmented into several pieces, but rather just include a Fragment Header with both the "Fragment Offset" and the "M" flag set to 0 (we refer to these packets as "atomic fragments"). As required by <xref target="RFC6946"/>, these atomic fragments are essentially processed by the destination host as non-fragment traffic (since there are not really any fragments to be reassembled). IPv6/IPv4 translators will typically employ the Fragment Identification information found in the Fragment Header to select an appropriate Fragment Identification value for the resulting IPv4 fragments.</t>
+
+<t>While atomic fragments might seem rather benign, there are scenarios in which the generation of IPv6 atomic fragments can introduce an attack vector that can be exploited for denial of service purposes. Since there are concrete security implications arising from the generation of IPv6 atomic fragments, and there is no real gain in generating IPv6 atomic fragments (as opposed to e.g. having IPv6/IPv4 translators generate a Fragment Identification value themselves), this document formally updates <xref target="RFC2460"/>, forbidding the generation of IPv6 atomic fragments, such that the aforementioned attack vector is eliminated.</t>
+
+<t><xref target="attack-vector"/> describes some possible attack scenarios. <xref target="additional-considerations"/> provides additional considerations regarding the usefulness of generating IPv6 atomic fragments. <xref target="update-rfc2460"/> formally updates RFC2460 such that this attack vector is eliminated.</t>
+
+</section>
+
+
+
+
+<section title="Terminology" anchor="terminology">
+
+<t>
+<list style="hanging">
+<t hangText="IPv6 atomic fragments">
+<vspace blankLines="0" />IPv6 packets that contain a Fragment Header with the Fragment Offset set to 0 and the M flag set to 0 (as defined by <xref target="RFC6946"/>).</t>
+</list>
+</t>
+
+    
+         
+
+<t>The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL
+   NOT", "SHOULD", "SHOULD NOT", "RECOMMENDED", "MAY", and
+   "OPTIONAL" in this document are to be interpreted as described in
+   RFC 2119 <xref target="RFC2119"/>.</t>
+</section>
+
+<section title="Denial of Service (DoS) attack vector" anchor="attack-vector">
+
+<t>Let us assume that Host A is communicating with Server B, and that, as a result of the widespread filtering of IPv6 packets with extension headers (including fragmentation) <xref target="I-D.gont-v6ops-ipv6-ehs-in-real-world"/>, some intermediate node filters fragments between Host A and Server B.  If an attacker sends a forged ICMPv6 "Packet Too Big" (PTB) error message to server B, reporting a Next-Hop MTU smaller than 1280, this will trigger the generation of IPv6 atomic fragments from that moment on (as required by <xref target="RFC2460"/>). When server server B starts sending IPv6 atomic fragments (in response to the received ICMPv6 PTB), these packets will be dropped, since we previously noted that packets with IPv6 EHs were being dropped between Host A and Server B. Thus, this situation will result in a Denial of Service (DoS) scenario.
+</t>
+
+<t>Another possible scenario is that in which two BGP peers are employing IPv6 transport, and they implement ACLs to drop IPv6 fragments (to avoid control-plane attacks). If the aforementioned BGP peers drop IPv6 fragments but still honor received ICMPv6 Packet Too Big error messages, an attacker could easily attack the peering session by simply sending an ICMPv6 PTB message with a reported MTU smaller than 1280 bytes. Once the attack packet has been fired, it will be the aforementioned routers themselves the ones dropping their own traffic.
+</t>
+
+
+<t>The aforementioned attack vector is exacerbated by the following factors:
+<list style="symbols">
+<t>The attacker does not need to forge the IPv6 Source Address of his attack packets. Hence, deployment of simple BCP38 filters will not help as a counter-measure.</t>
+
+<t>Only the IPv6 addresses of the IPv6 packet embedded in the ICMPv6 payload need to be forged. While one could envision filtering devices enforcing BCP38-style filters on the ICMPv6 payload, the use of extension (by the attacker) could make this difficult, if at all possible.</t>
+
+<t>Many implementations fail to perform validation checks on the received ICMPv6 error messages, as recommended in Section 5.2 of <xref target="RFC4443"/> and documented in <xref target="RFC5927"/>. It should be noted that in some cases, such as when an ICMPv6 error message has (supposedly) been elicited by a connection-less transport protocol (or some other connection-less protocol being encapsulated in IPv6), it may be virtually impossible to perform validation checks on the received ICMPv6 error messages. And, because of IPv6 extension headers, the ICMPv6 payload might not even contain any useful information on which to perform validation checks.</t>
+
+<t>Upon receipt of one of the aforementioned ICMPv6 "Packet Too Big" error messages, the Destination Cache <xref target="RFC4861"/> is usually updated to reflect that any subsequent packets to such destination should include a Fragment Header. This means that a single ICMPv6 "Packet Too Big" error message might affect multiple communication instances (e.g., TCP connections) with such destination.
+</t>
+</list>
+</t>
+</section>
+
+
+<section title="Updating RFC2460" anchor="update-rfc2460">
+
+<t>The following text from Section 5 of <xref target="RFC2460"/>:
+<list style="hanging">
+<t>"In response to an IPv6 packet that is sent to an IPv4 destination
+   (i.e., a packet that undergoes translation from IPv6 to IPv4), the
+   originating IPv6 node may receive an ICMP Packet Too Big message
+   reporting a Next-Hop MTU less than 1280.  In that case, the IPv6 node
+   is not required to reduce the size of subsequent packets to less than
+   1280, but must include a Fragment header in those packets so that the
+   IPv6-to-IPv4 translating router can obtain a suitable Identification
+   value to use in resulting IPv4 fragments.  Note that this means the
+   payload may have to be reduced to 1232 octets (1280 minus 40 for the
+   IPv6 header and 8 for the Fragment header), and smaller still if
+   additional extension headers are used."</t>
+</list>
+
+
+is formally replaced with:
+
+<list style="hanging">
+<t>"IPv6 nodes MUST discard ICMPv6 Packet Too Big error messages that report a Next-Hop MTU smaller than 1280 bytes (the minimum IPv6 MTU)."</t>
+</list>
+</t>
+
+</section>
+
+
+<section title="Additional Considerations" anchor="additional-considerations">
+<t>Besides the security assessment provided in <xref target="attack-vector"/>, it is interesting to evaluate if there is any gain in generating IPv6 atomic fragments (to provide for Fragment Identification value) as opposed to just let IPv6/IPv4 translators select an appropriate IPv4 Fragment Identification value.</t>
+
+<t>After some analysis, one can conclude that, if anything, an IPv6/IPv4 translator is in a much better position to select an appropriate Fragment Identification value for the packet that are to be translated from the IPv6 to the IPv4 world. For instance, an IPv6 node will generate Fragment Identification values without any knowledge of the Fragment ID values being generated by other IPv6 nodes employing the translator. Thus, an IPv6/IPv4 translator is in a much better position to generate Fragment IDs that will not result in collisions (i.e., that will not be reused for the same tuple {Source Address, Destination Address}.
+</t>
+</section>
+	
+	<section title="IANA Considerations" anchor="iana-considerations">
+<t>There are no IANA registries within this document. The RFC-Editor can remove this section before publication of this document as an RFC.</t>
+</section>
+
+    <section title="Security Considerations">
+
+	<t>This document describes a Denial of Service (DoS) attack vector that leverages the widespread filtering of IPv6 fragments in the public Internet by means of ICMPv6 PTB error messages. Additionally, it formally updates <xref target="RFC2460"/> such that this attack vector is eliminated.</t>
+
+    </section>
+
+    <section title="Acknowledgements">
+
+<t>Fernando Gont would like to thank Jan Zorz and Go6 Lab &lt;http://go6lab.si/&gt; for providing access to systems and networks that were employed to produce some of the measurement results presented in this document. Additionally, he would like to thank SixXS &lt;https://www.sixxs.net&gt; for providing IPv6 connectivity.</t>
+
+    </section>
+
+
+  </middle>
+
+  <back>
+  <references title='Normative References'>
+	<?rfc include="reference.RFC.2460" ?>
+	<?rfc include="reference.RFC.2119" ?>
+	<?rfc include="reference.RFC.4443" ?>
+	<?rfc include="reference.RFC.4861" ?>
+  </references>
+
+  <references title='Informative References'>
+	<?rfc include="reference.RFC.5927" ?>
+	<?rfc include="reference.RFC.6946" ?>
+	<?rfc include="reference.I-D.gont-v6ops-ipv6-ehs-in-real-world" ?>
+
+<!--
+
+
+	<?rfc include="reference.I-D.gont-6man-predictable-fragment-id" ?>
+
+
+<reference anchor='PREDICTABLE-ID' target="http://tools.ietf.org/html/draft-gont-6man-predictable-fragment-id">
+<front>
+<title abbrev="Predictable Fragment ID values">Security Implications of Predictable Fragment Identification Values</title>
+
+<author initials='F' surname='Gont' fullname='Fernando Gont'>
+    <organization />
+</author>
+
+<date month='December' year='2011' />
+
+</front>
+
+<seriesInfo name='Work in' value='Progress' />
+</reference>
+-->
+
+</references>
+
+  </back>
+</rfc>
