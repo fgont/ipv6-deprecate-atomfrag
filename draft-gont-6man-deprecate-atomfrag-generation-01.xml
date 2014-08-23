@@ -362,6 +362,13 @@ is formally replaced with:
         bytes, the translator MUST send the packet with a cleared Don't
         Fragment bit. Otherwise, the packet MUST be sent with the Don't 
         Fragment bit set.
+
+   This approach allows Path MTU Discovery to operate end-to-end for
+   paths whose MTU are not smaller than minimum IPv6 MTU of 1280 (which
+   corresponds to MTU of 1260 in the IPv4 domain). On paths that have
+   IPv4 links with MTU < 1260, the IPv4 router(s) connected to those
+   links will fragment the packets in accordance with Section 2.3 of
+   [RFC0791].
    ---------------- cut here -------------- cut here ----------------
 ]]></artwork>
 </figure>
