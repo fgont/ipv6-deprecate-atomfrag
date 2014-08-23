@@ -362,12 +362,6 @@ is formally replaced with:
         bytes, the translator MUST send the packet with a cleared Don't
         Fragment bit. Otherwise, the packet MUST be sent with the Don't 
         Fragment bit set.
-
-     o  When a translator receives an IPv6 packet with a Fragment Header,
-        the translator SHOULD generate the IPv4 packet with a cleared 
-        Don't Fragment bit, and with its identification value from the 
-        IPv6 Fragment Header, for all of the IPv6 fragments (MF=0 or 
-        MF=1).
    ---------------- cut here -------------- cut here ----------------
 ]]></artwork>
 </figure>
