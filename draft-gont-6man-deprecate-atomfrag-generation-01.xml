@@ -358,7 +358,7 @@ is formally replaced with:
    The difference in the minimum MTUs of IPv4 and IPv6 is accommodated
    as follows:
 
-     o  When the resulting IPv4 packet is smaller than or equal to 1280
+     o  When the resulting IPv4 packet is smaller than or equal to 1260
         bytes, the translator MUST send the packet with a cleared Don't
         Fragment bit. Otherwise, the packet MUST be sent with the Don't 
         Fragment bit set.
