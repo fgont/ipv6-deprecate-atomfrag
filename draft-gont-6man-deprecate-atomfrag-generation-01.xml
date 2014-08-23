@@ -361,7 +361,7 @@ is formally replaced with:
      o  When the resulting IPv4 packet is smaller than or equal to 1260
         bytes, the translator MUST send the packet with a cleared Don't
         Fragment bit. Otherwise, the packet MUST be sent with the Don't 
-        Fragment bit set.
+        Fragment bit set. See Section 5.1.
 
    This approach allows Path MTU Discovery to operate end-to-end for
    paths whose MTU are not smaller than minimum IPv6 MTU of 1280 (which
