@@ -411,9 +411,9 @@ is formally replaced with:
       generator at the translator.
 
    Flags:  The More Fragments flag is set to zero.  The Don't Fragment
-      (DF) flag is set as follows: If the packet size is greater than 88
-      bytes and less than or equal to 1280 bytes, it is set to zero; 
-      otherwise, it is set to one.
+      (DF) flag is set as follows: If the packet size is less than or
+      equal to 1260 bytes, it is set to zero; otherwise, it is set to
+      one.
 ]]></artwork>
 </figure>
 </t>
