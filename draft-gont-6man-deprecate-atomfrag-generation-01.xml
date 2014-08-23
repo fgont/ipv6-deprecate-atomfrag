@@ -358,6 +358,12 @@ is formally replaced with:
    The difference in the minimum MTUs of IPv4 and IPv6 is accommodated
    as follows:
 
+     o  When translating an ICMPv4 "Fragmentation Needed" packet, the
+        indicated MTU in the resulting ICMPv6 "Packet Too Big" will
+        never be set to a value lower than 1280. This that the IPv6
+        nodes will never have to encounter or handle Path MTU values
+        lower than the minimum IPv6 link MTU of 1280. See Section 4.2.
+
      o  When the resulting IPv4 packet is smaller than or equal to 1260
         bytes, the translator MUST send the packet with a cleared Don't
         Fragment bit. Otherwise, the packet MUST be sent with the Don't 
