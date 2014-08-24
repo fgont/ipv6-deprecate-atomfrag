@@ -358,16 +358,24 @@ is formally replaced with:
    The difference in the minimum MTUs of IPv4 and IPv6 is accommodated
    as follows:
 
-     o  When the resulting IPv4 packet is smaller than or equal to 1280
+     o  When translating an ICMPv4 "Fragmentation Needed" packet, the
+        indicated MTU in the resulting ICMPv6 "Packet Too Big" will
+        never be set to a value lower than 1280. This ensures that the
+        IPv6 nodes will never have to encounter or handle Path MTU
+        values lower than the minimum IPv6 link MTU of 1280. See
+        Section 4.2.
+
+     o  When the resulting IPv4 packet is smaller than or equal to 1260
         bytes, the translator MUST send the packet with a cleared Don't
         Fragment bit. Otherwise, the packet MUST be sent with the Don't 
-        Fragment bit set.
+        Fragment bit set. See Section 5.1.
 
-     o  When a translator receives an IPv6 packet with a Fragment Header,
-        the translator SHOULD generate the IPv4 packet with a cleared 
-        Don't Fragment bit, and with its identification value from the 
-        IPv6 Fragment Header, for all of the IPv6 fragments (MF=0 or 
-        MF=1).
+   This approach allows Path MTU Discovery to operate end-to-end for
+   paths whose MTU are not smaller than minimum IPv6 MTU of 1280 (which
+   corresponds to MTU of 1260 in the IPv4 domain). On paths that have
+   IPv4 links with MTU < 1260, the IPv4 router(s) connected to those
+   links will fragment the packets in accordance with Section 2.3 of
+   [RFC0791].
    ---------------- cut here -------------- cut here ----------------
 ]]></artwork>
 </figure>
@@ -404,9 +412,9 @@ is formally replaced with:
       generator at the translator.
 
    Flags:  The More Fragments flag is set to zero.  The Don't Fragment
-      (DF) flag is set as follows: If the packet size is greater than 88
-      bytes and less than or equal to 1280 bytes, it is set to zero; 
-      otherwise, it is set to one.
+      (DF) flag is set as follows: If the packet size is less than or
+      equal to 1260 bytes, it is set to zero; otherwise, it is set to
+      one.
 ]]></artwork>
 </figure>
 </t>
