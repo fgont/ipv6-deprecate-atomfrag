@@ -154,7 +154,7 @@ Unfortunately,
 </list>
 </t>
 
-<t><xref target="RFC6145"/> is currently the only "consumer" of IPv6 atomic fragments, and it correctly and diligently notes (in Section 6) the possible interoperability problems of relying on IPv6 atomic fragments, proposing as a workaround something very similar to what we proposed in <xref target="update-rfc6145"/>. We believe that, by making the more robust behavior the default behavior of the "IP/ICMP Translation Algorithm", robustness is increased, and the corresponding code is simplified.
+<t><xref target="RFC6145"/> is currently the only "consumer" of IPv6 atomic fragments, and it correctly and diligently notes (in Section 6) the possible interoperability problems of relying on IPv6 atomic fragments, proposing as a workaround something very similar to what we propose in <xref target="update-rfc6145"/>. We believe that, by making the more robust behavior the default behavior of the "IP/ICMP Translation Algorithm", robustness is increased, and the corresponding code is simplified.
 </t>
  
 <!--
