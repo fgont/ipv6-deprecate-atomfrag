@@ -129,6 +129,18 @@ The core IPv6 specification requires that when a host receives an ICMPv6 "Packet
 
 <t>Upon receipt of one of the aforementioned ICMPv6 "Packet Too Big" error messages, the Destination Cache <xref target="RFC4861"/> is usually updated to reflect that any subsequent packets to such destination should include a Fragment Header. This means that a single ICMPv6 "Packet Too Big" error message might affect multiple communication instances (e.g., TCP connections) with such destination.
 </t>
+
+<t>As noted in <xref target="additional-considerations"/>, <xref
+target="RFC6145">SIIT</xref> is the only technology which currently
+makes use of atomic fragments. Unfortunately, an IPv6 node cannot easily
+limit its exposure to the aforementioned attack vector by only emitting
+atomic fragments to IPv4 destinations behind a stateless translator.
+This is due to the fact that <xref target="RFC6052">Section 3.3 of
+RFC6052</xref> encourages operators to use a Network-Specific Prefix
+(NSP) that maps the IPv4 address space into IPv6. When an NSP is being
+used, IPv6 addresses representing IPv4 nodes (reached through a
+stateless translator) are indistinguishable from native IPv6 addresses.
+</t>
 </list>
 </t>
 </section>
@@ -154,7 +166,7 @@ Unfortunately,
 </list>
 </t>
 
-<t><xref target="RFC6145"/> is currently the only "consumer" of IPv6 atomic fragments, and it correctly and diligently notes (in Section 6) the possible interoperability problems of relying on IPv6 atomic fragments, proposing as a workaround something very similar to what we proposed in <xref target="update-rfc6145"/>. We believe that, by making the more robust behavior the default behavior of the "IP/ICMP Translation Algorithm", robustness is increased, and the corresponding code is simplified.
+<t><xref target="RFC6145"/> is currently the only "consumer" of IPv6 atomic fragments, and it correctly and diligently notes (in Section 6) the possible interoperability problems of relying on IPv6 atomic fragments, proposing as a workaround something very similar to what we propose in <xref target="update-rfc6145"/>. We believe that, by making the more robust behavior the default behavior of the "IP/ICMP Translation Algorithm", robustness is increased, and the corresponding code is simplified.
 </t>
  
 <!--
@@ -564,6 +576,7 @@ is formally replaced with:
   <references title='Informative References'>
 	<?rfc include="reference.RFC.2923" ?>
 	<?rfc include="reference.RFC.5927" ?>
+	<?rfc include="reference.RFC.6052" ?>
 	<?rfc include="reference.RFC.6946" ?>
 	<?rfc include="reference.I-D.gont-v6ops-ipv6-ehs-in-real-world" ?>
 
