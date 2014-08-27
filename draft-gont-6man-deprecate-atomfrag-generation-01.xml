@@ -554,7 +554,7 @@ is formally replaced with:
     </section>
 
     <section title="Acknowledgements">
-<t>The authors would like to thank (in alphabetical order) Bob Briscoe, Brian Carpenter, Jeroen Massar, and Erik Nordmark, for providing valuable comments on earlier versions of this document.</t>
+<t>The authors would like to thank (in alphabetical order) Bob Briscoe, Brian Carpenter, Tatuya Jinmei, Jeroen Massar, and Erik Nordmark, for providing valuable comments on earlier versions of this document.</t>
 <t>Fernando Gont would like to thank Jan Zorz and Go6 Lab &lt;http://go6lab.si/&gt; for providing access to systems and networks that were employed to produce some of tests that resulted in the publication of this document. Additionally, he would like to thank SixXS &lt;https://www.sixxs.net&gt; for providing IPv6 connectivity.</t>
 
     </section>
