@@ -69,7 +69,7 @@
 
     <abstract>
     <t>
-The core IPv6 specification requires that when a host receives an ICMPv6 "Packet Too Big" message reporting a "Next-Hop MTU" smaller than 1280, the host includes a Fragment Header in all subsequent packets sent to that destination, without reducing the assumed Path-MTU. The simplicity with which ICMPv6 "Packet Too Big" messages can be forged, coupled with the widespread filtering of IPv6 fragments, results in an attack vector that can be leveraged for Denial of Service purposes. This document briefly discusses the aforementioned attack vector, and formally updates RFC2460 such that generation of IPv6 atomic fragments is deprecated, thus eliminating the aforementioned attack vector. Additionally, it formally updates RFC6145 such that the Stateless IP/ICMP Translation Algorithm (SIIT) does not rely on the generation of IPv6 atomic fragments.
+The core IPv6 specification requires that when a host receives an ICMPv6 "Packet Too Big" message reporting a "Next-Hop MTU" smaller than 1280, the host includes a Fragment Header in all subsequent packets sent to that destination, without reducing the assumed Path-MTU. The simplicity with which ICMPv6 "Packet Too Big" messages can be forged, coupled with the widespread filtering of IPv6 fragments, results in an attack vector that can be leveraged for Denial of Service purposes. This document briefly discusses the aforementioned attack vector, and formally updates RFC2460 such that generation of IPv6 atomic fragments is deprecated, thus eliminating the aforementioned attack vector. Additionally, it formally updates RFC6145 such that the Stateless IP/ICMP Translation Algorithm (SIIT) does not rely on the generation of IPv6 atomic fragments, thus improving the robustness of the protocol.
 </t>
     </abstract>
   </front>
@@ -144,19 +144,19 @@ stateless translator) are indistinguishable from native IPv6 addresses.
 </section>
 
 <section title="Additional Considerations" anchor="additional-considerations">
-<t>Besides the security assessment provided in <xref target="attack-vector"/>, it is interesting to evaluate the pros and cons of having IPv6-to-IPv4 translating router rely on the generation of IPv6 atomic fragments.
+<t>Besides the security assessment provided in <xref target="attack-vector"/>, it is interesting to evaluate the pros and cons of having an IPv6-to-IPv4 translating router rely on the generation of IPv6 atomic fragments.
 </t>
 
 <t>Relying on the generation of IPv6 atomic fragments implies a reliance on:
 <list style="numbers">
-<t>ICMPv6 packets arriving from the sending node to the destination node</t>
-<t>Nodes receiving ICMPv6 PTB messages reporting an MTU smaller than 1280 bytes actually producing atomic fragments</t>
+<t>ICMPv6 packets arriving from the translator to the IPv6 node</t>
+<t>The ability of the nodes receiving ICMPv6 PTB messages reporting an MTU smaller than 1280 bytes to actually produce atomic fragments</t>
 <t>Support for IPv6 fragmentation on the IPv6 side of the translator</t>
 </list>
 
 Unfortunately,
 <list style="symbols">
-<t>There exists a fair share of evidence of ICMPv6 Packet Too Big messages being dropped on the public Internet (for instance, that is one of the reasons for which the <xref target="RFC4821"/> was published). Therefore, relying on such messages being successfully delivered will affect the robustness of the protocol that relies on them.</t>
+<t>There exists a fair share of evidence of ICMPv6 Packet Too Big messages being dropped on the public Internet (for instance, that is one of the reasons for which PLPMTUD <xref target="RFC4821"/> was produced). Therefore, relying on such messages being successfully delivered will affect the robustness of the protocol that relies on them.</t>
 <t>A number of IPv6 implementations have been known to fail to generate IPv6 atomic fragments in response to ICMPv6 PTB messages reporting an MTU smaller than 1280 bytes (see <xref target="survey"/> for a small survey). Additionally, results included in Section 6 of <xref target="RFC6145"/> note that 57% of the tested web servers failed to produce IPv6 atomic fragments in response to ICMPv6 PTB messages reporting an MTU smaller than 1280 bytes. Thus, any protocol relying on IPv6 atomic fragment generation for proper functioning will have interoperability problems with the aforementioned IPv6 stacks.
 </t>
 <t>IPv6 atomic fragment generation represents a case in which fragmented traffic is produced where otherwise it would not be needed. Since there is widespread filtering of IPv6 fragments in the public Internet <xref target="I-D.gont-v6ops-ipv6-ehs-in-real-world"/>, this would mean that the (unnecessary) use of IPv6 fragmentation might result, unnecessarily, in a Denial of Service situation even in legitimate cases.
@@ -164,11 +164,21 @@ Unfortunately,
 </list>
 </t>
 
-<t><xref target="RFC6145"/> is currently the only "consumer" of IPv6 atomic fragments, and it correctly and diligently notes (in Section 6) the possible interoperability problems of relying on IPv6 atomic fragments, proposing as a workaround something very similar to what we propose in <xref target="update-rfc6145"/>. We believe that, by making the more robust behavior the default behavior of the "IP/ICMP Translation Algorithm", robustness is increased, and the corresponding code is simplified.
+<t>Finally, we note that SIIT essentially employs the Fragment Header of IPv6 atomic fragments to signal the translator how to set the DF bit of IPv4 datagrams (the DF bit is cleared when the IPv6 packet contains a Fragment Header, and is otherwise set to 1 when the IPv6 packet does not contain an IPv6 Fragment Header). Additionally, the translator will employ the low-order 16-bits of the IPv6 Fragment Identification for setting the IPv4 Fragment Identification. At least in theory, this is expected to reduce the Fragment ID collision rate in the following specific scenario:
+
+<list style="numbers">
+<t>An IPv6 node communicates with an IPv4 node (through SIIT)</t>
+<t>The IPv4 node is located behind an IPv4 link with an MTU &lt; 1260</t>
+<t>ECMP routing <xref target="RFC2992"/> with more than one translator are employed for e.g., redundancy purposes</t>
+</list>
 </t>
 
-<t>Finally, we note that SIIT essentially uses the Fragment Header in IPv6 atomic fragments to signal the translator how to set the DF bit of IPv4 datagrams: the DF bit is cleared when the IPv6 packet contains a Fragment Header, and is otherwise set to 1 when the IPv6 packet does not contain an IPv6 Fragment Header. Additionally, the translator will employ the low-order 16-bits of the IPv6 Fragment Identification for setting the IPv4 Fragment Identification. At least in theory, this was expected to reduce the Fragment ID collision rate in Equal-Cost Multi-Path (ECMP) routing <xref target="RFC2992"/> scenarios when compared to the alternative approach of having the translator select an appropriate Fragment ID for the outgoing IPv4 packets. However, since a number of implementations set IPv6 Fragment ID according to the output of a Pseudo-Random Number Generator (PRNG) (see Appendix B of <xref target="I-D.ietf-6man-predictable-fragment-id"/>), when such implementations are employed this will not actually result in a reduced Fragment ID collision rate.
-</t> 
+<t>
+In such a scenario, if each translator were to select the IPv4 Fragment Identification on its own (rather than selecting the IPv4 Fragment ID from the low-order 16-bits of the Fragment Identification of atomic fragments), this could possibly lead to IPv4 Fragment ID collisions. However, since a number of implementations set IPv6 Fragment ID according to the output of a Pseudo-Random Number Generator (PRNG) (see Appendix B of <xref target="I-D.ietf-6man-predictable-fragment-id"/>) and the translator only employs the low-order 16-bits of such value, it is very unlikely that relying on the Fragment ID of the IPv6 atomic fragment will result in a reduced Fragment ID collision rate (when compared to the case where the translator selects each IPv4 Fragment ID on its own).
+</t>
+
+<t>Finally, we note that <xref target="RFC6145"/> is currently the only "consumer" of IPv6 atomic fragments, and it correctly and diligently notes (in Section 6) the possible interoperability problems of relying on IPv6 atomic fragments, proposing as a workaround something very similar to what we propose in <xref target="update-rfc6145"/>. We believe that, by making the more robust behavior the default behavior of the "IP/ICMP Translation Algorithm", robustness is improved, and the corresponding code is simplified.
+</t>
 <!--
 <t>Besides the security assessment provided in <xref target="attack-vector"/>, it is interesting to evaluate if there is any gain in generating IPv6 atomic fragments (to provide for Fragment Identification value) as opposed to just let IPv6/IPv4 translators select an appropriate IPv4 Fragment Identification value.</t>
 
@@ -607,7 +617,7 @@ is formally replaced with:
 
 <t>This section includes a non-exhaustive list of operating systems that *fail* to produce IPv6 atomic fragments. It is based on the results published in <xref target="RFC6946"/> and <xref target="Morbitzer"/>.</t>
 
-<t>The following OPerating Systems fail to generate IPv6 atomic fragments in response to ICMPv6 PTB messages that report an MTU smaller than 1280 bytes:
+<t>The following Operating Systems fail to generate IPv6 atomic fragments in response to ICMPv6 PTB messages that report an MTU smaller than 1280 bytes:
 
 <list style="symbols">
 <t>FreeBSD 8.0</t>
