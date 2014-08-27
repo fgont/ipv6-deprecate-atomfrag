@@ -133,15 +133,14 @@ The core IPv6 specification requires that when a host receives an ICMPv6 "Packet
 <t>As noted in <xref target="additional-considerations"/>, <xref
 target="RFC6145">SIIT</xref> is the only technology which currently
 makes use of atomic fragments. Unfortunately, an IPv6 node cannot easily
-limit its exposure to the aforementioned attack vector by only emitting
-atomic fragments to IPv4 destinations behind a stateless translator.
-This is due to the fact that <xref target="RFC6052">Section 3.3 of
+limit its exposure to the aforementioned attack vector by only generating IPv6 atomic fragments towards IPv4 destinations behind a stateless translator. This is due to the fact that <xref target="RFC6052">Section 3.3 of
 RFC6052</xref> encourages operators to use a Network-Specific Prefix
 (NSP) that maps the IPv4 address space into IPv6. When an NSP is being
 used, IPv6 addresses representing IPv4 nodes (reached through a
 stateless translator) are indistinguishable from native IPv6 addresses.
 </t>
-</list>
+
+<t>We note that SIIT essentially uses the Fragment Header in IPv6 atomic fragments to signal the translator how to set the DF bit of IPv4 datagrams: the DF bit is cleared when the IPv6 packet contains a Fragment Header, and is otherwise set to 1 when the IPv6 packet does not contain an IPv6 Fragment Header. Additionally, the translator will employ the low-order 16-bits of the IPv6 Fragment Identification for setting the IPv4 Fragment Identification. At least in theory, this was expected to reduce the Fragment ID collision rate in Equal-Cost Multi-Path (ECMP) routing <xref target="RFC2992"/> scenarios when compared to the alternative approach of having the translator select an appropriate Fragment ID for the outgoing IPv4 packets. However, since a number of implementations set IPv6 Fragment ID according to the output of a Pseudo-Random Number Generator (PRNG) (see Appendix B of <xref target="I-D.ietf-6man-predictable-fragment-id"/>), when such implementations are employed this will not actually result in a reduced Fragment ID collision rate.
 </t>
 </section>
 
@@ -159,7 +158,7 @@ stateless translator) are indistinguishable from native IPv6 addresses.
 Unfortunately,
 <list style="symbols">
 <t>There exists a fair share of evidence of ICMPv6 Packet Too Big messages being dropped on the public Internet (for instance, that is one of the reasons for which the <xref target="RFC4821"/> was published). Therefore, relying on such messages being successfully delivered will affect the robustness of the protocol that relies on them.</t>
-<t>A number of IPv6 implementations have been known to fail to generate IPv6 atomic fragments in response to ICMPv6 PTB messages reporting an MTU smaller than 1280 bytes <xref target="RFC6946"/> <xref target="Morbitzer"/>. Additionally, results included in Section 6 of <xref target="RFC6145"/> note that 57% of the tested web servers failed to produce IPv6 atomic fragments in response to ICMPv6 PTB messages reporting an MTU smaller than 1280 bytes. Thus, any protocol relying on IPv6 atomic fragment generation for proper functioning will have interoperability problems with the aforementioned IPv6 stacks.
+<t>A number of IPv6 implementations have been known to fail to generate IPv6 atomic fragments in response to ICMPv6 PTB messages reporting an MTU smaller than 1280 bytes (see <xref target="survey"/> for a small survey). Additionally, results included in Section 6 of <xref target="RFC6145"/> note that 57% of the tested web servers failed to produce IPv6 atomic fragments in response to ICMPv6 PTB messages reporting an MTU smaller than 1280 bytes. Thus, any protocol relying on IPv6 atomic fragment generation for proper functioning will have interoperability problems with the aforementioned IPv6 stacks.
 </t>
 <t>IPv6 atomic fragment generation represents a case in which fragmented traffic is produced where otherwise it would not be needed. Since there is widespread filtering of IPv6 fragments in the public Internet <xref target="I-D.gont-v6ops-ipv6-ehs-in-real-world"/>, this would mean that the (unnecessary) use of IPv6 fragmentation might result, unnecessarily, in a Denial of Service situation even in legitimate cases.
 </t>
@@ -555,7 +554,7 @@ is formally replaced with:
     </section>
 
     <section title="Acknowledgements">
-<t>The authors would like to thank (in alphabetical order) Bob Briscoe, Brian Carpenter, and Jeroen Massar for providing valuable comments on earlier versions of this document.</t>
+<t>The authors would like to thank (in alphabetical order) Bob Briscoe, Brian Carpenter, Jeroen Massar, and Erik Nordmark, for providing valuable comments on earlier versions of this document.</t>
 <t>Fernando Gont would like to thank Jan Zorz and Go6 Lab &lt;http://go6lab.si/&gt; for providing access to systems and networks that were employed to produce some of tests that resulted in the publication of this document. Additionally, he would like to thank SixXS &lt;https://www.sixxs.net&gt; for providing IPv6 connectivity.</t>
 
     </section>
@@ -575,6 +574,7 @@ is formally replaced with:
 
   <references title='Informative References'>
 	<?rfc include="reference.RFC.2923" ?>
+	<?rfc include="reference.RFC.2992" ?>
 	<?rfc include="reference.RFC.5927" ?>
 	<?rfc include="reference.RFC.6052" ?>
 	<?rfc include="reference.RFC.6946" ?>
@@ -597,4 +597,22 @@ is formally replaced with:
 </references>
 
   </back>
+
+<section title="Small Survey of OSes that Fail to Produce IPv6 Atomic Fragments" anchor="survey">
+<t>[This section will probably be removed from this document before it is published as an RFC].</t>
+
+<t>This section includes a non-exhaustive list of operating systems that *fail* to produce IPv6 atomic fragments. It is based on the results published in <xref target="RFC6946"/> and <xref target="Morbitzer"/>.</t>
+
+<t>The following OPerating Systems fail to generate IPv6 atomic fragments in response to ICMPv6 PTB messages that report an MTU smaller than 1280 bytes:
+
+<list style="symbols">
+<t>FreeBSD 8.0</t>
+<t>Linux kernel 2.6.32</t>
+<t>Linux kernel 3.2</t>
+<t>Mac OS X 10.6.7</t>
+<t>NetBSD 5.1</t>
+</list>
+</t>
+</section>
+
 </rfc>
