@@ -139,8 +139,7 @@ RFC6052</xref> encourages operators to use a Network-Specific Prefix
 used, IPv6 addresses representing IPv4 nodes (reached through a
 stateless translator) are indistinguishable from native IPv6 addresses.
 </t>
-
-<t>We note that SIIT essentially uses the Fragment Header in IPv6 atomic fragments to signal the translator how to set the DF bit of IPv4 datagrams: the DF bit is cleared when the IPv6 packet contains a Fragment Header, and is otherwise set to 1 when the IPv6 packet does not contain an IPv6 Fragment Header. Additionally, the translator will employ the low-order 16-bits of the IPv6 Fragment Identification for setting the IPv4 Fragment Identification. At least in theory, this was expected to reduce the Fragment ID collision rate in Equal-Cost Multi-Path (ECMP) routing <xref target="RFC2992"/> scenarios when compared to the alternative approach of having the translator select an appropriate Fragment ID for the outgoing IPv4 packets. However, since a number of implementations set IPv6 Fragment ID according to the output of a Pseudo-Random Number Generator (PRNG) (see Appendix B of <xref target="I-D.ietf-6man-predictable-fragment-id"/>), when such implementations are employed this will not actually result in a reduced Fragment ID collision rate.
+</list>
 </t>
 </section>
 
@@ -167,7 +166,9 @@ Unfortunately,
 
 <t><xref target="RFC6145"/> is currently the only "consumer" of IPv6 atomic fragments, and it correctly and diligently notes (in Section 6) the possible interoperability problems of relying on IPv6 atomic fragments, proposing as a workaround something very similar to what we propose in <xref target="update-rfc6145"/>. We believe that, by making the more robust behavior the default behavior of the "IP/ICMP Translation Algorithm", robustness is increased, and the corresponding code is simplified.
 </t>
- 
+
+<t>Finally, we note that SIIT essentially uses the Fragment Header in IPv6 atomic fragments to signal the translator how to set the DF bit of IPv4 datagrams: the DF bit is cleared when the IPv6 packet contains a Fragment Header, and is otherwise set to 1 when the IPv6 packet does not contain an IPv6 Fragment Header. Additionally, the translator will employ the low-order 16-bits of the IPv6 Fragment Identification for setting the IPv4 Fragment Identification. At least in theory, this was expected to reduce the Fragment ID collision rate in Equal-Cost Multi-Path (ECMP) routing <xref target="RFC2992"/> scenarios when compared to the alternative approach of having the translator select an appropriate Fragment ID for the outgoing IPv4 packets. However, since a number of implementations set IPv6 Fragment ID according to the output of a Pseudo-Random Number Generator (PRNG) (see Appendix B of <xref target="I-D.ietf-6man-predictable-fragment-id"/>), when such implementations are employed this will not actually result in a reduced Fragment ID collision rate.
+</t> 
 <!--
 <t>Besides the security assessment provided in <xref target="attack-vector"/>, it is interesting to evaluate if there is any gain in generating IPv6 atomic fragments (to provide for Fragment Identification value) as opposed to just let IPv6/IPv4 translators select an appropriate IPv4 Fragment Identification value.</t>
 
@@ -396,6 +397,7 @@ is formally replaced with:
 <t>The following text from Section 5.1 ("Translating IPv6 Headers into IPv4 Headers") of <xref target="RFC6145"/>:
 <figure>
 <artwork><![CDATA[
+   ---------------- cut here -------------- cut here ----------------
    Identification:  All zero.  In order to avoid black holes caused by
       ICMPv4 filtering or non-[RFC2460]-compatible IPv6 hosts (a
       workaround is discussed in Section 6), the translator MAY provide
@@ -413,12 +415,14 @@ is formally replaced with:
       zero; otherwise, it sets the DF flag to one.  The translator
       SHOULD provide a method for operators to enable or disable this
       function.
+   ---------------- cut here -------------- cut here ----------------
 ]]></artwork>
 </figure>
 
 is formally replaced with:
 <figure>
 <artwork><![CDATA[
+   ---------------- cut here -------------- cut here ----------------
    Identification:  Set according to a Fragment Identification
       generator at the translator.
 
@@ -426,6 +430,7 @@ is formally replaced with:
       (DF) flag is set as follows: If the packet size is less than or
       equal to 1260 bytes, it is set to zero; otherwise, it is set to
       one.
+   ---------------- cut here -------------- cut here ----------------
 ]]></artwork>
 </figure>
 </t>
@@ -578,6 +583,7 @@ is formally replaced with:
 	<?rfc include="reference.RFC.5927" ?>
 	<?rfc include="reference.RFC.6052" ?>
 	<?rfc include="reference.RFC.6946" ?>
+	<?rfc include="reference.I-D.ietf-6man-predictable-fragment-id" ?>
 	<?rfc include="reference.I-D.gont-v6ops-ipv6-ehs-in-real-world" ?>
 
       <reference anchor="Morbitzer" target="https://www.ru.nl/publish/pages/578936/m_morbitzer_masterthesis.pdf">
@@ -596,8 +602,6 @@ is formally replaced with:
 
 </references>
 
-  </back>
-
 <section title="Small Survey of OSes that Fail to Produce IPv6 Atomic Fragments" anchor="survey">
 <t>[This section will probably be removed from this document before it is published as an RFC].</t>
 
@@ -614,5 +618,6 @@ is formally replaced with:
 </list>
 </t>
 </section>
+  </back>
 
 </rfc>
