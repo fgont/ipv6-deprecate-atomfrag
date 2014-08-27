@@ -554,7 +554,7 @@ is formally replaced with:
 
     <section title="Security Considerations">
 
-	<t>This document describes a Denial of Service (DoS) attack vector that leverages the widespread filtering of IPv6 fragments in the public Internet by means of ICMPv6 PTB error messages. Additionally, it formally updates <xref target="RFC2460"/> such that this attack vector is eliminated.</t>
+	<t>This document describes a Denial of Service (DoS) attack vector that leverages the widespread filtering of IPv6 fragments in the public Internet by means of ICMPv6 PTB error messages. Additionally, it formally updates <xref target="RFC2460"/> such that this attack vector is eliminated, and also formally updated <xref target="RFC6145"/> such that it does not rely on IPv6 atomic fragments.</t>
 
     </section>
 
