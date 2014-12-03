@@ -47,18 +47,20 @@
       </address>
 </author>
 
-<author fullname="Tore Anderson" initials="T.A." surname="Anderson">
-<organization>Redpill Linpro</organization>
-<address>
-<postal>
-<street>Vitaminveien 1A</street>
-<city>NO-0485 Oslo</city>
-<country>NORWAY</country>
-</postal>
-<phone>+47 959 31 212</phone>
-<email>tore@redpill-linpro.com</email>
-</address>
-</author>
+    <author fullname="Tore Anderson" initials="T." surname="Anderson">
+      <organization>Redpill Linpro</organization>
+      <address>
+        <postal>
+          <street>Vitaminveien 1A</street>
+          <code>0485</code>
+          <city>Oslo</city>
+          <country>Norway</country>
+        </postal>
+        <phone>+47 959 31 212</phone>
+        <email>tore@redpill-linpro.com</email>
+        <uri>http://www.redpill-linpro.com</uri>
+      </address>
+    </author>
 
     <date year="2014" />
 
