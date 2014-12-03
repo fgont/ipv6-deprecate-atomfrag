@@ -131,7 +131,7 @@ The core IPv6 specification requires that when a host receives an ICMPv6 "Packet
 </t>
 
 <t>As noted in <xref target="additional-considerations"/>, <xref
-target="RFC6145">SIIT</xref> is the only technology which currently
+target="RFC6145">SIIT</xref> (including derivative protocols such as <xref target="RFC6146">Stateful NAT64</xref>) is the only technology which currently
 makes use of atomic fragments. Unfortunately, an IPv6 node cannot easily
 limit its exposure to the aforementioned attack vector by only generating IPv6 atomic fragments towards IPv4 destinations behind a stateless translator. This is due to the fact that <xref target="RFC6052">Section 3.3 of
 RFC6052</xref> encourages operators to use a Network-Specific Prefix
@@ -569,7 +569,7 @@ is formally replaced with:
     </section>
 
     <section title="Acknowledgements">
-<t>The authors would like to thank (in alphabetical order) Bob Briscoe, Brian Carpenter, Tatuya Jinmei, Jeroen Massar, and Erik Nordmark, for providing valuable comments on earlier versions of this document.</t>
+<t>The authors would like to thank (in alphabetical order) Alberto Leiva, Bob Briscoe, Brian Carpenter, Tatuya Jinmei, Jeroen Massar, and Erik Nordmark, for providing valuable comments on earlier versions of this document.</t>
 <t>Fernando Gont would like to thank Jan Zorz and Go6 Lab &lt;http://go6lab.si/&gt; for providing access to systems and networks that were employed to produce some of tests that resulted in the publication of this document. Additionally, he would like to thank SixXS &lt;https://www.sixxs.net&gt; for providing IPv6 connectivity.</t>
 
     </section>
@@ -592,6 +592,7 @@ is formally replaced with:
 	<?rfc include="reference.RFC.2992" ?>
 	<?rfc include="reference.RFC.5927" ?>
 	<?rfc include="reference.RFC.6052" ?>
+	<?rfc include="reference.RFC.6146" ?>
 	<?rfc include="reference.RFC.6946" ?>
 	<?rfc include="reference.I-D.ietf-6man-predictable-fragment-id" ?>
 	<?rfc include="reference.I-D.gont-v6ops-ipv6-ehs-in-real-world" ?>
